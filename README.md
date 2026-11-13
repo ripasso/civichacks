@@ -44,3 +44,13 @@ Fri 8 am / 3 pm / 6 pm checkpoints · Fri 8:30–10 am live from the Summit
 (*what they say is the brief for the next 24 hours*) · Fri 10 am–4 pm
 mentors on Discord · Sat 8 am final checkpoint · **Sat 10 am hard stop** ·
 Sat 12 pm top five · Sat 12:30 pm 5-min pitch + 3-min Q&A
+
+## References
+
+Data (City of Toronto Open Data, Open Government Licence – Toronto; retrieved 13 Nov 2026 by `pipeline/build_data.py`):
+- [Members of Toronto City Council – Voting Record](https://open.toronto.ca/dataset/members-of-toronto-city-council-voting-record/) (2022–2026 term; last vote 5 Aug 2026) — item timelines and recorded vote results. Recorded votes only: not every decision has one.
+- [Address Points (Municipal) – Toronto One Address Repository](https://open.toronto.ca/dataset/address-points-municipal-toronto-one-address-repository/) — address → ward lookup.
+
+Code: Python 3 standard library only (`csv`, `json`, `urllib`).
+
+AI assistance: Claude Code helped write `pipeline/build_data.py`; outputs checked by the asserts in the script and by hand against the source CSVs.
