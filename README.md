@@ -4,7 +4,8 @@ Team repo for [CIVIC Hack 2026](https://civic-hack-2026.devpost.com/) —
 Future Cities Institute, University of Waterloo. 36 hours, online,
 12–14 November 2026.
 
-The challenge is one of five municipal problems, chosen by vote at the
+**Final challenge: Making municipal decisions easier to understand** — see
+`docs/challenge.md`. It was one of five municipal problems, chosen by vote at the
 2026 State of Canada's Cities Summit and revealed at launch (Thu 12 Nov,
 6 pm ET). Build starts 7 pm ET Thursday; **all building stops Sat 14 Nov,
 10 am ET**, when the Devpost submission is due.
