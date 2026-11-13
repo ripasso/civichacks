@@ -50,6 +50,7 @@ Sat 12 pm top five · Sat 12:30 pm 5-min pitch + 3-min Q&A
 Data (City of Toronto Open Data, Open Government Licence – Toronto; retrieved 13 Nov 2026 by `pipeline/build_data.py`):
 - [Members of Toronto City Council – Voting Record](https://open.toronto.ca/dataset/members-of-toronto-city-council-voting-record/) (2022–2026 term; last vote 5 Aug 2026) — item timelines and recorded vote results. Recorded votes only: not every decision has one.
 - [Address Points (Municipal) – Toronto One Address Repository](https://open.toronto.ca/dataset/address-points-municipal-toronto-one-address-repository/) — address → ward lookup.
+- City of Toronto council agenda items 2026.NY34.12, 2026.TE34.21, 2026.PH30.3 (`secure.toronto.ca/council/agenda-item.do?item=<ITEM>`), retrieved 13 Nov 2026 — saved as PDF printouts in `data/raw/` (Chrome "Save as PDF"; the site blocks automated downloads). Public council records, © City of Toronto; the pages state no licence and link to no terms of use, and they are not on the Open Data portal, so the Open Government Licence – Toronto is not confirmed to cover them.
 
 Code: Python 3 standard library only (`csv`, `json`, `urllib`).
 
