@@ -58,3 +58,12 @@ AI assistance: Claude Code helped write `pipeline/build_data.py`; outputs checke
 - City of Toronto agenda item pages for 2026.NY34.12, 2026.TE34.21, 2026.PH30.3 (`data/raw/`) and the staff reports they link (downloaded from www.toronto.ca/legdocs) — council decision text, tracking status, ward, and staff recommendations for the "what changed" view.
 
 Tools: `pdftotext` (Poppler, GPL) for PDF text extraction; Node.js built-in test runner for `tests/`.
+- [Atkinson Hyperlegible](https://fonts.google.com/specimen/Atkinson+Hyperlegible) typeface (Braille Institute, SIL Open Font Licence) via Google Fonts — chosen for low-vision readers.
+
+## Run it
+
+```bash
+python3 pipeline/build_data.py   # rebuild site/data from open data + data/raw
+node --test tests/*.test.js      # 8 tests, incl. 2,000 real addresses
+cd site && python3 -m http.server 8000   # simulator at http://localhost:8000
+```
