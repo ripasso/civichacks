@@ -55,3 +55,6 @@ Data (City of Toronto Open Data, Open Government Licence – Toronto; retrieved 
 Code: Python 3 standard library only (`csv`, `json`, `urllib`).
 
 AI assistance: Claude Code helped write `pipeline/build_data.py`; outputs checked by the asserts in the script and by hand against the source CSVs.
+- City of Toronto agenda item pages for 2026.NY34.12, 2026.TE34.21, 2026.PH30.3 (`data/raw/`) and the staff reports they link (downloaded from www.toronto.ca/legdocs) — council decision text, tracking status, ward, and staff recommendations for the "what changed" view.
+
+Tools: `pdftotext` (Poppler, GPL) for PDF text extraction; Node.js built-in test runner for `tests/`.

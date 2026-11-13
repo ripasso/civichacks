@@ -5,7 +5,7 @@ Sources (City of Toronto Open Data, retrieved at build time):
 - Address Points (Municipal) - Toronto One Address Repository
 Run: python3 pipeline/build_data.py [cache_dir]
 """
-import csv, json, re, sys, urllib.request, collections, datetime, pathlib
+import csv, json, re, sys, subprocess, difflib, random, urllib.request, collections, datetime, pathlib
 
 CKAN = "https://ckan0.cf.opendata.inter.prod-toronto.ca/api/3/action/package_show?id="
 OUT = pathlib.Path(__file__).resolve().parent.parent / "site" / "data"
@@ -67,6 +67,89 @@ def items(path, since):
     return sorted(by_item.values(), key=lambda i: i["votes"][-1]["date"], reverse=True)
 
 
+RAW = pathlib.Path(__file__).resolve().parent.parent / "data" / "raw"
+
+
+def pdf_text(path, layout=False):
+    return subprocess.run(["pdftotext", *(["-layout"] if layout else []), str(path), "-"],
+                          capture_output=True, text=True, check=True).stdout
+
+
+def squash(text):
+    # a line-end hyphen is a real one ("191-" + "199"), so join without a space
+    return re.sub(r"\s+", " ", re.sub(r"-\n\s*", "-", text)).strip()
+
+
+def numbered(text):
+    """Split '1. ... 2. ...' into recommendations; sub-points (a., b.) stay with their parent."""
+    parts = re.split(r"(?:^|\s)(\d{1,2})\.\s+(?=[A-Z])", squash(text))
+    return [f"{n}. {t.strip()}" for n, t in zip(parts[1::2], parts[2::2])]
+
+
+def section(text, start, end):
+    m = re.search(start + r"(.*?)" + end, text, re.S)
+    assert m, (start, end)
+    return m.group(1)
+
+
+def item_page(item_id, cache):
+    """Fields from a hand-saved PDF printout of the official item page, plus the staff report it links."""
+    raw = pdf_text(RAW / f"{item_id}.pdf", layout=True)
+    # Chrome print headers/footers: timestamp, page title, page URL, "n/N"
+    lines = [l.strip() for l in raw.splitlines() if not re.match(
+        r"^\s*(\d\d/\d\d/\d{4}, \d\d:\d\d|Agenda Item History - |https://secure\.toronto\.ca/council/agenda-item|\d+/\d+\s*$)", l)]
+    text = "\n".join(lines)
+    status = squash(section(text, r"Tracking Status\n", r"\nSee also|\n[A-Z][a-z]+ Council consideration|\nCity Council consideration"))
+    ward = int(re.search(r"Ward: (\d+)", text).group(1))
+    decision = section(text, r"City Council Decision\n.*?adopted the following:\n", r"\nPublic Notice Given")
+    report_url = re.search(r"https://www\.toronto\.ca/legdocs/mmis/\S+/bgrd/backgroundfile-\d+\.pdf", text).group(0)
+    report = cache / report_url.rsplit("/", 1)[1]
+    if not report.exists():
+        urllib.request.urlretrieve(report_url, report)
+    rtext = pdf_text(report, layout=True)
+    rtext = "\n".join(l for l in rtext.splitlines() if not re.search(r"Page \d+ of \d+\s*$", l))
+    staff = re.sub(r"^.*?recommends? that:", "", section(rtext, r"\n\s*RECOMMENDATIONS\s*\n", r"\n\s*FINANCIAL IMPACT\s*\n"), flags=re.S)
+    staff_recs, council_recs = numbered(staff), numbered(decision)
+    for r in council_recs:  # every extracted line must be the city's own words
+        assert squash(r[r.index(" ") + 1:]) in squash(text), r[:60]
+    comments = collections.Counter(m for m in re.findall(r"\nCommunications \((.*?)\)\n", text))
+    n_comments = len(re.findall(r"^\([A-Z][a-z]+ \d{1,2}, \d{4}\) (?:E-mail|Letter|Submission)", text, re.M))
+    return {
+        "ward": ward, "status": status,
+        "page": {
+            "notice": squash(section(text, r"Public Notice Given\n", r"\n")),
+            "reportUrl": report_url, "comments": n_comments,
+            "diff": diff(staff_recs, council_recs),
+            "source": f"Printout of the official item page saved {datetime.date.today().isoformat()}",
+        },
+    }
+
+
+def diff(staff, council):
+    """Pair staff recommendations with council decisions by wording; word-level changes for pairs."""
+    out, used = [], set()
+    for s in staff:
+        best = max(((difflib.SequenceMatcher(None, s, c).ratio(), i) for i, c in enumerate(council) if i not in used), default=(0, -1))
+        if best[0] < 0.6:
+            out.append({"op": "removed", "staff": s})
+            continue
+        used.add(best[1])
+        c = council[best[1]]
+        sw, cw = s.split(), c.split()
+        words = [[tag, " ".join(sw[i1:i2]), " ".join(cw[j1:j2])]
+                 for tag, i1, i2, j1, j2 in difflib.SequenceMatcher(None, sw, cw).get_opcodes()]
+        out.append({"op": "same" if s == c else "changed", "staff": s, "council": c, "words": words})
+    out += [{"op": "added", "council": c} for i, c in enumerate(council) if i not in used]
+    return out
+
+
+def address_sample(path, n=2000):
+    """Random real addresses with their official ward, to test the lookup never names a wrong ward."""
+    rows = [(r["ADDRESS_FULL"], int(r["WARD"])) for r in csv.DictReader(open(path, encoding="utf-8-sig"))
+            if r["LO_NUM"].isdigit() and r["WARD"]]
+    return random.Random(1).sample(rows, n)
+
+
 def main():
     cache = pathlib.Path(sys.argv[1] if len(sys.argv) > 1 else "data/cache")
     cache.mkdir(parents=True, exist_ok=True)
@@ -79,6 +162,10 @@ def main():
     its = items(fetch(cache, *votes_src), "2026-01-01")
     assert len(ward_names) == 25, ward_names
     assert all(i["votes"] for i in its)
+    for it in its:
+        if (RAW / f"{it['id']}.pdf").exists():
+            it.update(item_page(it["id"], cache))
+    assert sum("page" in i for i in its) == len(list(RAW.glob("*.pdf")))
 
     data = {
         "retrieved": today,
@@ -86,11 +173,15 @@ def main():
             "votes": "https://open.toronto.ca/dataset/members-of-toronto-city-council-voting-record/",
             "addresses": "https://open.toronto.ca/dataset/address-points-municipal-toronto-one-address-repository/",
         },
+        "lastVote": max(v["date"] for i in its for v in i["votes"]),
         "wards": ward_names,
         "items": its,
     }
     (OUT / "items.json").write_text(json.dumps(data, separators=(",", ":")))
     (OUT / "streets.json").write_text(json.dumps(streets, separators=(",", ":")))
+    tests = OUT.parent.parent / "tests"
+    tests.mkdir(exist_ok=True)
+    (tests / "address_sample.json").write_text(json.dumps(address_sample(fetch(cache, *addr_src))))
     print(f"{len(its)} items, {len(streets)} streets -> {OUT}")
 
 
