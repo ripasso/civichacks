@@ -1,143 +1,143 @@
 {
  "problem": {
-  "duration": 15.279,
+  "duration": 16.4,
   "sentences": [
    {
     "start": 0,
-    "end": 4.54
+    "end": 4.16
    },
    {
-    "start": 4.923,
-    "end": 15.279
+    "start": 4.34,
+    "end": 16.4
    }
   ]
  },
  "today": {
-  "duration": 16.765,
+  "duration": 13.52,
   "sentences": [
    {
     "start": 0,
-    "end": 5.039
+    "end": 3.2
    },
    {
-    "start": 5.364,
-    "end": 16.765
+    "start": 3.467,
+    "end": 13.52
    }
   ]
  },
  "demo-replay": {
-  "duration": 9.056,
+  "duration": 8.64,
   "sentences": [
    {
     "start": 0,
-    "end": 2.368
+    "end": 1.68
    },
    {
-    "start": 2.543,
-    "end": 9.056
+    "start": 1.893,
+    "end": 8.64
    }
   ]
  },
  "demo-address": {
-  "duration": 9.427,
+  "duration": 8,
   "sentences": [
    {
     "start": 0,
-    "end": 4.737
+    "end": 2.88
    },
    {
-    "start": 5.062,
-    "end": 9.427
+    "start": 3.12,
+    "end": 8
    }
   ]
  },
  "demo-detail": {
-  "duration": 18.39,
+  "duration": 16.96,
   "sentences": [
    {
     "start": 0,
-    "end": 1.741
+    "end": 0.88
    },
    {
-    "start": 2.02,
-    "end": 9.346
+    "start": 1.173,
+    "end": 9.12
    },
    {
-    "start": 9.729,
-    "end": 15.43
+    "start": 9.36,
+    "end": 14.48
    },
    {
-    "start": 15.813,
-    "end": 18.39
+    "start": 14.587,
+    "end": 16.96
    }
   ]
  },
  "demo-alerts": {
-  "duration": 14.721,
+  "duration": 13.04,
   "sentences": [
    {
     "start": 0,
-    "end": 1.997
+    "end": 1.36
    },
    {
-    "start": 2.438,
-    "end": 14.721
+    "start": 1.733,
+    "end": 13.04
    }
   ]
  },
  "demo-final": {
-  "duration": 5.201,
+  "duration": 5.2,
   "sentences": [
    {
     "start": 0,
-    "end": 5.201
+    "end": 5.2
    }
   ]
  },
  "setup": {
-  "duration": 29.025,
+  "duration": 29.52,
   "sentences": [
    {
     "start": 0,
-    "end": 10.646
+    "end": 11.28
    },
    {
-    "start": 10.971,
-    "end": 14.814
+    "start": 11.38,
+    "end": 15.44
    },
    {
-    "start": 15.058,
-    "end": 26.436
+    "start": 15.68,
+    "end": 27.2
    },
    {
-    "start": 26.68,
-    "end": 29.025
+    "start": 27.333,
+    "end": 29.52
    }
   ]
  },
  "next": {
-  "duration": 17.694,
+  "duration": 16.32,
   "sentences": [
    {
     "start": 0,
-    "end": 5.41
+    "end": 4.72
    },
    {
-    "start": 5.735,
-    "end": 13.038
+    "start": 4.86,
+    "end": 12.32
    },
    {
-    "start": 13.363,
-    "end": 17.694
+    "start": 12.36,
+    "end": 16.32
    }
   ]
  },
  "end": {
-  "duration": 3.715,
+  "duration": 4.56,
   "sentences": [
    {
     "start": 0,
-    "end": 3.715
+    "end": 4.56
    }
   ]
  }

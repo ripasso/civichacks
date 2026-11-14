@@ -1,9 +1,9 @@
-// Generates the narration with ElevenLabs (voice: Sarah), one file per script section, and records
+// Generates the narration with ElevenLabs (voice: Chris, model eleven_v3), one file per script section, and records
 // when each sentence starts and ends so captions and the demo recording follow the voice exactly.
 // The API key is added to requests by the network proxy; it is never stored here.
 const fs = require('fs');
 const script = require('./src/script.json');
-const VOICE = 'EXAVITQu4vr4xnSDxMaL';
+const VOICE = 'iP95p4xoKVk53GoZ742B'; // Chris: charming, down-to-earth
 const spoken = t => t.replace('ripasso.github.io/civichacks', 'ripasso dot github dot io, slash civic hacks');
 
 (async () => {
@@ -12,7 +12,7 @@ const spoken = t => t.replace('ripasso.github.io/civichacks', 'ripasso dot githu
     const text = spoken(sec.vo.join(' '));
     const r = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${VOICE}/with-timestamps?output_format=mp3_44100_128`, {
       method: 'POST', headers: { 'content-type': 'application/json', 'xi-api-key': 'proxy-injected' },
-      body: JSON.stringify({ text, model_id: 'eleven_multilingual_v2', voice_settings: { stability: 0.55, similarity_boost: 0.75 } }),
+      body: JSON.stringify({ text, model_id: 'eleven_v3', voice_settings: { stability: 0.5 } }),
     });
     if (!r.ok) throw new Error(`${sec.id}: ${r.status} ${await r.text()}`);
     const { audio_base64, alignment } = await r.json();
