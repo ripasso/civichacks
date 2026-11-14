@@ -95,8 +95,8 @@ sequenceDiagram
 ```mermaid
 stateDiagram-v2
   [*] --> Start
-  Start --> WardChosen: address / building / WARD n
-  Start --> Start: unknown or ambiguous → ask again
+  Start --> WardChosen: address, building or ward
+  Start --> Start: unclear, ask again
   WardChosen --> WardChosen: number → item details
   WardChosen --> Watching: WATCH
   Watching --> Watching: new recorded vote → alert text
@@ -109,22 +109,22 @@ stateDiagram-v2
 ```mermaid
 classDiagram
   class Item {
-    id: "2026.NY34.12"
+    id e.g. 2026.NY34.12
     title
-    url: official item page
+    url official item page
     ward
-    status: city tracking status (3 detailed items)
-    votes: Vote[]
-    page: notice, reportUrl, comments count, diff
+    status city tracking status
+    votes list of Vote
+    page notice, report, diff
   }
   class Vote {
     date
-    body: "City Council"
-    motion: "Amend Item"
-    result: "Carried, 25-1"
+    body e.g. City Council
+    motion e.g. Amend Item
+    result e.g. Carried 25-1
   }
   class StreetRanges {
-    "KING ST W": [lo, hi, ward][]
+    street name to number ranges with ward
   }
   class Place {
     name
@@ -133,9 +133,9 @@ classDiagram
   }
   class ConversationState {
     ward
-    list: item ids shown
-    watch: ward or none
-    asOf: replay date or none
+    list item ids shown
+    watch ward or none
+    asOf replay date or none
   }
   Item "1" *-- "many" Vote
 ```
