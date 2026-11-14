@@ -1,9 +1,10 @@
 [
  {
   "id": "problem",
+  "tag": "[excited]",
   "vo": [
-   "The CIVIC Hack challenge: making municipal decisions easier to understand.",
-   "Toronto council decisions change streets every week, but the record is spread across agendas, staff reports and votes, and most residents only hear about a decision once it's made."
+   "Hey! This is Text City Hall, for the CIVIC Hack challenge: making municipal decisions easier to understand.",
+   "Toronto council makes decisions every week that change our streets, but the record is buried in agendas, staff reports and votes, and most of us only find out once it's already decided!"
   ]
  },
  {

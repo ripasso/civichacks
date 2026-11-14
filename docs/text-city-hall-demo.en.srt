@@ -1,0 +1,91 @@
+1
+00:00:00,400 --> 00:00:07,120
+Hey! This is Text City Hall, for the CIVIC Hack challenge: making municipal decisions easier to understand.
+
+2
+00:00:07,270 --> 00:00:18,800
+Toronto council makes decisions every week that change our streets, but the record is buried in agendas, staff reports and votes, and most of us only find out once it's already decided!
+
+3
+00:00:20,000 --> 00:00:23,200
+Take Sam, who rents on Eglinton Avenue East and works shifts.
+
+4
+00:00:23,467 --> 00:00:33,520
+To learn what happened to the two 59-storey towers proposed on their street, Sam would need a thirty-page staff report, this agenda page, and votes from two different meetings.
+
+5
+00:00:34,320 --> 00:00:36,000
+Here's the same thing with Text City Hall.
+
+6
+00:00:36,213 --> 00:00:42,960
+We're replaying the city's real records as they stood on July 8th, the day after North York Community Council met.
+
+7
+00:00:43,665 --> 00:00:46,545
+Sam texts the address. No app, no account, any phone.
+
+8
+00:00:46,785 --> 00:00:51,665
+It finds the ward in the city's own address data and lists the recent decisions there.
+
+9
+00:00:52,367 --> 00:00:53,247
+Sam replies 1.
+
+10
+00:00:53,540 --> 00:01:01,487
+On July 7th, community council passed an amendment six to nothing, but the motion to adopt the item lost, two to four.
+
+11
+00:01:01,727 --> 00:01:06,847
+No comment period is confirmed, so it says so. It never guesses a deadline from a meeting date.
+
+12
+00:01:06,954 --> 00:01:09,327
+Every reply links to the official record.
+
+13
+00:01:10,028 --> 00:01:11,388
+Sam texts WATCH.
+
+14
+00:01:11,761 --> 00:01:23,068
+On July 30th, City Council votes, and Sam gets two texts: Eglinton, amended twenty-five to one, and a Millwood Road rezoning in the same ward, amended twelve to eleven.
+
+15
+00:01:23,769 --> 00:01:28,969
+Reply 1 again, and Sam sees the outcome: City Council adopted it, with amendments.
+
+16
+00:01:30,070 --> 00:01:41,350
+Everything you just saw runs on City of Toronto open data and agenda pages. No AI writes the replies, and on two thousand real addresses the ward lookup was never wrong.
+
+17
+00:01:41,450 --> 00:01:45,510
+Setting it up is simple. There's no server and no database to run.
+
+18
+00:01:45,750 --> 00:01:57,270
+A nightly script refreshes the city's open data, the site is free to host, and a city connects a text-message number to the same reply code, so residents get exactly this conversation.
+
+19
+00:01:57,403 --> 00:01:59,590
+It costs a few cents per conversation.
+
+20
+00:02:00,790 --> 00:02:05,510
+Any city that publishes council votes and addresses can adapt it by changing one data step.
+
+21
+00:02:05,650 --> 00:02:13,110
+Council is between terms after the election, so this demo replays real records from July, clearly labelled.
+
+22
+00:02:13,150 --> 00:02:17,110
+The goal: residents hear about decisions while they can still have a say.
+
+23
+00:02:18,310 --> 00:02:22,870
+Try it at ripasso.github.io/civichacks.

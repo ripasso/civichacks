@@ -1,14 +1,14 @@
 {
  "problem": {
-  "duration": 16.4,
+  "duration": 18.4,
   "sentences": [
    {
     "start": 0,
-    "end": 4.16
+    "end": 6.72
    },
    {
-    "start": 4.34,
-    "end": 16.4
+    "start": 6.87,
+    "end": 18.4
    }
   ]
  },

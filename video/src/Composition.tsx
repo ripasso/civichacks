@@ -38,19 +38,9 @@ const Paper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   }}>{children}</AbsoluteFill>
 );
 
-const CaptionBar: React.FC<{ id: string }> = ({ id }) => {
-  const frame = useCurrentFrame();
-  return (
-    <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, padding: "26px 160px 40px", background: C.ink, color: C.white, fontSize: 40, lineHeight: 1.3, minHeight: 160, fontFamily: BODY }}>
-      {sentenceAt(id, frame / FPS - LEAD)}
-    </div>
-  );
-};
-
 const Scene: React.FC<{ id: string; children: React.ReactNode }> = ({ id, children }) => (
   <Paper>
-    <AbsoluteFill style={{ padding: "90px 140px 210px" }}>{children}</AbsoluteFill>
-    <CaptionBar id={id} />
+    <AbsoluteFill style={{ padding: "90px 140px" }}>{children}</AbsoluteFill>
     <Sequence from={f(LEAD)}><Audio src={staticFile(`vo/${id}.mp3`)} /></Sequence>
   </Paper>
 );
@@ -94,17 +84,17 @@ const Problem = () => {
   const s2 = said("problem", 1);
   return (
     <Scene id="problem">
-      <div style={{ position: "absolute", left: 140, top: 210, width: 900 }}>
+      <div style={{ position: "absolute", left: 140, top: 300, width: 900 }}>
         <Pop at={4}><Hand size={156}>Text City Hall</Hand></Pop>
         <svg width={700} height={40} style={{ overflow: "visible", marginTop: -6 }}><Draw d="M6 20 Q180 4 340 18 T690 14" start={18} color={C.amber} width={10} /></svg>
         <div style={{ fontSize: 46, color: C.muted, marginTop: 20, opacity: fadeIn(useCurrentFrame(), 26), lineHeight: 1.25 }}>
           CIVIC Hack 2026: making municipal decisions easier to understand
         </div>
       </div>
-      <div style={{ position: "absolute", right: 240, top: 140 }}><Sam mood="confused" size={560} enterAt={s2 - 6} /></div>
-      <Sheet label="Agenda" x={1150} y={120} rot={-14} start={s2 + 10} />
-      <Sheet label="Report" x={1600} y={180} rot={12} start={s2 + 30} />
-      <Sheet label="Votes" x={1180} y={500} rot={8} start={s2 + 50} />
+      <div style={{ position: "absolute", right: 240, top: 200 }}><Sam mood="confused" size={620} enterAt={s2 - 6} /></div>
+      <Sheet label="Agenda" x={1150} y={180} rot={-14} start={s2 + 10} />
+      <Sheet label="Report" x={1600} y={260} rot={12} start={s2 + 30} />
+      <Sheet label="Votes" x={1180} y={600} rot={8} start={s2 + 50} />
     </Scene>
   );
 };
@@ -124,7 +114,7 @@ const Today = () => {
   };
   return (
     <Scene id="today">
-      <div style={{ display: "flex", alignItems: "center", gap: 70, height: "100%" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 70, height: "100%", paddingTop: 70 }}>
         <div style={{ width: 430, textAlign: "center" }}>
           <Sam mood="worried" size={460} />
           <Hand size={58} style={{ marginTop: 6 }}>Sam, today</Hand>
@@ -194,7 +184,7 @@ const Setup = () => {
           </div>
         ))}
       </div>
-      <div style={{ position: "absolute", right: 70, bottom: 190 }}><Sam mood="happy" size={400} enterAt={s3 + 80} /></div>
+      <div style={{ position: "absolute", right: 90, bottom: 70 }}><Sam mood="happy" size={460} enterAt={s3 + 80} /></div>
     </Scene>
   );
 };
@@ -206,7 +196,7 @@ const Next = () => {
     <Scene id="next">
       <Pop at={6}><Hand size={96}>Any city can adapt it</Hand></Pop>
       <div style={{ fontSize: 38, marginTop: 10, opacity: fadeIn(frame, 16) }}>Change one data step: where its council votes and addresses come from.</div>
-      <svg width={1700} height={520} style={{ position: "absolute", left: 110, top: 270, overflow: "visible" }}>
+      <svg width={1700} height={520} style={{ position: "absolute", left: 110, top: 330, overflow: "visible" }}>
         <defs><Rough id="land" scale={3} /></defs>
         <g filter="url(#land)"><Draw d="M0 430 Q200 380 420 420 T860 400 T1300 420 T1700 390" start={20} len={40} color={C.civic} width={6} /></g>
         {CITIES.map(([name, x, y], i) => {
@@ -222,7 +212,7 @@ const Next = () => {
           );
         })}
       </svg>
-      <div style={{ position: "absolute", left: 140, bottom: 200, fontSize: 30, color: C.muted, opacity: fadeIn(frame, said("next", 1)) }}>
+      <div style={{ position: "absolute", left: 140, bottom: 90, fontSize: 32, color: C.muted, opacity: fadeIn(frame, said("next", 1)) }}>
         Demo: real Toronto records from July 2026, replayed and labelled, because council is between terms.
       </div>
     </Scene>
@@ -234,14 +224,14 @@ const End = () => {
   const swipe = interpolate(frame, [24, 44], [0, 1], { ...clamp, easing: Easing.bezier(0.33, 1, 0.68, 1) });
   return (
     <Scene id="end">
-      <div style={{ position: "absolute", left: 160, top: 250 }}>
+      <div style={{ position: "absolute", left: 160, top: 330 }}>
         <Pop at={4}><Hand size={160}>Text City Hall</Hand></Pop>
         <div style={{ position: "relative", display: "inline-block", marginTop: 26 }}>
           <div style={{ position: "absolute", left: -10, right: -10, top: 18, bottom: 4, background: "rgba(201,138,0,.32)", scale: `${swipe} 1`, transformOrigin: "left", rotate: "-1deg" }} />
           <Hand size={76} color={C.civic} style={{ position: "relative" }}>ripasso.github.io/civichacks</Hand>
         </div>
       </div>
-      <div style={{ position: "absolute", right: 200, top: 90 }}><Sam mood="happy" size={600} wave /></div>
+      <div style={{ position: "absolute", right: 200, top: 150 }}><Sam mood="happy" size={680} wave /></div>
     </Scene>
   );
 };

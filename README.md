@@ -7,7 +7,7 @@ Built for [CIVIC Hack 2026](https://civic-hack-2026.devpost.com/) (Future Cities
 | | |
 |---|---|
 | **Try it** | https://ripasso.github.io/civichacks/ |
-| **Demo video** (2:23, narrated, captioned, animated) | [`docs/text-city-hall-demo.mp4`](docs/text-city-hall-demo.mp4) · script: [`docs/video-script.md`](docs/video-script.md) |
+| **Demo video** (2:25, narrated, animated) | [`docs/text-city-hall-demo.mp4`](docs/text-city-hall-demo.mp4) · captions: [`docs/text-city-hall-demo.en.srt`](docs/text-city-hall-demo.en.srt) · script: [`docs/video-script.md`](docs/video-script.md) |
 | **Municipal Readiness Report** (1 page) | [`docs/municipal-readiness-report.pdf`](docs/municipal-readiness-report.pdf) |
 | **Requirements, UML, architecture, code walkthrough** | [`docs/design.md`](docs/design.md) |
 | **Short description** | [`docs/devpost-description.md`](docs/devpost-description.md) |
