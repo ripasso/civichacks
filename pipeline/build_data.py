@@ -48,6 +48,14 @@ def street_ranges(path):
     return out, names
 
 
+def places(path):
+    """Named buildings ("CN Tower") -> [name, official address, ward], from the same address dataset."""
+    out = {(r["PLACE_NAME"], r["ADDRESS_FULL"], int(r["WARD"]))
+           for r in csv.DictReader(open(path, encoding="utf-8-sig"))
+           if r["PLACE_NAME"] not in ("", "None") and r["WARD"]}
+    return sorted(out)
+
+
 def items(path, since):
     """Agenda items whose title starts with a street address, with their recorded votes."""
     by_item = {}
@@ -179,6 +187,7 @@ def main():
     }
     (OUT / "items.json").write_text(json.dumps(data, separators=(",", ":")))
     (OUT / "streets.json").write_text(json.dumps(streets, separators=(",", ":")))
+    (OUT / "places.json").write_text(json.dumps(places(fetch(cache, *addr_src)), separators=(",", ":")))
     tests = OUT.parent.parent / "tests"
     tests.mkdir(exist_ok=True)
     (tests / "address_sample.json").write_text(json.dumps(address_sample(fetch(cache, *addr_src))))

@@ -39,14 +39,24 @@ export function wardOf(addr, streets) {
   return { ambiguous: true };
 }
 
+// "city hall" -> named places whose name holds every word typed. Uses the city's PLACE_NAME field only.
+export function placesNamed(query, places) {
+  const words = query.toUpperCase().replace(/[^A-Z0-9 ]/g, ' ').split(/\s+/).filter(Boolean);
+  if (!words.length) return [];
+  return places.filter(([name]) => {
+    const n = name.toUpperCase().replace(/[^A-Z0-9 ]/g, ' ').split(/\s+/);
+    return words.every(w => n.includes(w));
+  });
+}
+
 // Attach a ward to each item once: the official page's ward if we have it, else from the title address.
-export function prepare(itemsJson, streets) {
+export function prepare(itemsJson, streets, places = []) {
   const items = itemsJson.items.map(it => {
     const addr = parseAddress(it.title.split(' - ')[0].split(/ and /i)[0]);
     const found = !it.ward && addr ? wardOf(addr, streets) : null;
     return { ...it, ward: it.ward || found?.ward || null };
   });
-  return { ...itemsJson, items, streets };
+  return { ...itemsJson, items, streets, places };
 }
 
 const fmt = d => `${+d.slice(8, 10)} ${MONTHS[+d.slice(5, 7) - 1]} ${d.slice(0, 4)}`;
@@ -55,12 +65,13 @@ const place = t => t.split(' - ')[0].replace(/\s*\(.*?\)/, '');
 
 // Plain label from words in the official title (fixed list, no AI).
 export function kind(title) {
-  return [[/Zoning/i, 'rezoning'], [/Fence/i, 'fence exemption'], [/Tree/i, 'tree removal'],
-    [/Heritage/i, 'heritage change'], [/Land Tribunal/i, 'tribunal appeal'], [/Lease/i, 'city lease'],
-    [/Sign/i, 'sign variance']].find(([re]) => re.test(title))?.[1] || 'council item';
+  // whole words only: "Street" must not read as "Tree", "Design" as "Sign"
+  return [[/\bZoning\b/i, 'rezoning'], [/\bFence\b/i, 'fence exemption'], [/\bTree\b/i, 'tree removal'],
+    [/\bHeritage\b/i, 'heritage change'], [/\bLand Tribunal\b/i, 'tribunal appeal'], [/\bLease\b/i, 'city lease'],
+    [/\bSigns?\b/i, 'sign variance']].find(([re]) => re.test(title))?.[1] || 'council item';
 }
 
-const HELP = 'Text a Toronto street address (e.g. 100 Queen St W) or WARD 10 to see recent council decisions there. Reply a number for details. WATCH for updates, STOP to end. Info from City of Toronto open data.';
+const HELP = 'Text a Toronto street address (e.g. 100 Queen St W), a building name (e.g. CN Tower) or WARD 10 to see recent council decisions there. Reply a number for details. WATCH for updates, STOP to end. Info from City of Toronto open data.';
 
 function menu(data, ward, state) {
   const asOf = state.asOf || '9999';
@@ -71,7 +82,7 @@ function menu(data, ward, state) {
     return { text: `${head} No address-specific council votes recorded here in 2026 (records to ${fmt(data.lastVote)}). Try another address or WARD number.`, list: [] };
   }
   const lines = items.map((it, i) => `${i + 1}) ${place(it.title)} - ${kind(it.title)} - last vote ${fmt(votes(it).at(-1).date)}`);
-  return { text: `${head} Recent council decisions:\n${lines.join('\n')}\nReply 1-${items.length} for details.`, list: items.map(it => it.id) };
+  return { text: `${head} Recent council decisions:\n${lines.join('\n')}\nReply ${items.length > 1 ? `1-${items.length}` : 1} for details.`, list: items.map(it => it.id) };
 }
 
 function detail(data, id, state) {
@@ -107,7 +118,19 @@ export function reply(message, state, data) {
   const ward = m && data.wards[+m[1]] ? +m[1] : null;
   if (!ward) {
     const addr = parseAddress(message);
-    if (!addr) return { text: `Sorry, I did not understand that. ${HELP}`, state: s };
+    if (!addr) {
+      const hits = placesNamed(message, data.places || []);
+      const wards = new Set(hits.map(h => h[2]));
+      if (wards.size === 1) {
+        const r = reply(`WARD ${hits[0][2]}`, s, data);
+        return { ...r, text: gsm(`${hits[0][0]} is at ${hits[0][1]}. ${r.text}`) };
+      }
+      if (hits.length) {
+        const list = hits.slice(0, 4).map(h => `${h[0]} - ${h[1]}`).join('\n');
+        return { text: gsm(`Which one? Text its street address:\n${list}`).slice(0, MAX_SMS), state: s };
+      }
+      return { text: `Sorry, I did not understand that. ${HELP}`, state: s };
+    }
     const found = wardOf(addr, data.streets);
     if (!found) return { text: `Could not find "${gsm(message.trim()).slice(0, 40)}" in Toronto's address list. Check the spelling, or text WARD and your ward number (1-25).`, state: s };
     if (found.ambiguous) return { text: 'That address is near a ward boundary, so I will not guess. Text WARD and your ward number (1-25). Find it at toronto.ca/city-government/data-research-maps/neighbourhoods-communities/ward-profiles', state: s };

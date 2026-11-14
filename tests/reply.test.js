@@ -1,11 +1,12 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { parseAddress, wardOf, prepare, reply, alerts } from '../site/lib/reply.js';
+import { parseAddress, wardOf, prepare, reply, alerts, placesNamed, kind } from '../site/lib/reply.js';
 
 const load = p => JSON.parse(readFileSync(new URL(p, import.meta.url)));
 const streets = load('../site/data/streets.json');
-const data = { ...prepare(load('../site/data/items.json'), streets), siteUrl: 'https://example.test/' };
+const places = load('../site/data/places.json');
+const data = { ...prepare(load('../site/data/items.json'), streets, places), siteUrl: 'https://example.test/' };
 const GSM = /^[A-Za-z0-9 \n@£$¥èéùìòÇØøÅå_!"#%&'()*+,\-./:;<=>?¡ÄÖÑÜ§¿äöñüà]*$/;
 const chat = (...msgs) => msgs.reduce(({ state }, m) => reply(m, state, data), { state: {} });
 
@@ -75,4 +76,20 @@ test('alerts list votes in the window only', () => {
   const a = alerts(data, 15, '2026-07-08', '2026-07-31');
   assert.ok(a.some(t => t.includes('245 Eglinton Avenue East') && t.includes('Carried, 25-1')));
   assert.equal(alerts(data, 15, '2026-08-01', '2026-12-31').length, 0);
+});
+
+test('building names resolve from the city place-name field', () => {
+  const t = chat('CN Tower').text;
+  assert.match(t, /^CN Tower is at 301 Front St W\. Ward 10 Spadina-Fort York/);
+  const which = chat('city hall').text; // two City Halls in two wards: ask, never guess
+  assert.match(which, /^Which one\?/); assert.match(which, /60 Queen St W/); assert.match(which, /100 Queen St W/);
+  assert.match(chat('royal ontario museum').text, /Ward 11/);
+  assert.equal(placesNamed('zzqx', places).length, 0);
+  assert.match(chat('banana').text, /did not understand/);
+});
+
+test('item labels match whole words only', () => {
+  assert.equal(kind('701 Fleet Street - Authorization to Enter into a Long-term Lease'), 'city lease');
+  assert.equal(kind('15 Marchwood Drive - Application to Remove a Private Tree'), 'tree removal');
+  assert.equal(kind('10 Design Street - Something Else'), 'council item');
 });
