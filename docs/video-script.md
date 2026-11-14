@@ -13,7 +13,7 @@ Read this aloud while the video plays: each section starts at the time shown, an
 | 1:37 | Sam texts 1 again | Reply 1 again, and Sam sees the outcome: City Council adopted it, with amendments. |
 | 1:44 | Data / Working today / Not built yet | Everything comes from City of Toronto open data and agenda pages. No AI writes the replies. On two thousand real addresses, the ward lookup was never wrong. Working today: the full conversation, in the browser, with real records. Not built yet: a real phone number and live alerts. Council is between terms after the election, so nothing is open for comment. The demo replays past dates, clearly labelled. |
 | 2:13 | What a city needs to pilot it | To pilot it, a city needs a text number connected to this code, a nightly data refresh, and staff to review the wording. It costs a few cents per conversation, and any city with open council data can adapt it. The goal: residents hear about decisions while they can still have a say. |
-| 2:37 | End card with the link | Try it at ripasso dot github dot io, slash civichacks. |
+| 2:37 | End card with the link | Try it at ripasso.github.io/civichacks. *(Say: "ripasso dot github dot io, slash civichacks".)* |
 
 ## Why it is written this way
 
