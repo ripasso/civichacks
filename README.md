@@ -67,3 +67,7 @@ python3 pipeline/build_data.py   # rebuild site/data from open data + data/raw
 node --test tests/*.test.js      # 8 tests, incl. 2,000 real addresses
 cd site && python3 -m http.server 8000   # simulator at http://localhost:8000
 ```
+
+## Demo video
+
+`docs/text-city-hall-demo.mp4` (2:03). Made with [Remotion](https://www.remotion.dev/) 4.0.543 (Remotion License, free for individuals and small teams) from a real browser recording of the live site: `video/record-demo.cjs` records it, `video/src/Composition.tsx` adds the cards and captions. Rebuild: `cd video && npm i && node record-demo.cjs && npx remotion render Demo out/text-city-hall-demo.mp4`.
