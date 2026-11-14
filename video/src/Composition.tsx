@@ -1,98 +1,145 @@
-import { AbsoluteFill, Composition, Easing, Series, interpolate, staticFile, useCurrentFrame } from "remotion";
+import { AbsoluteFill, Composition, Easing, Img, Series, interpolate, staticFile, useCurrentFrame } from "remotion";
 import { Video } from "@remotion/media";
 import marks from "./demo-marks.json";
+import script from "./script.json";
 
 // Same palette as the site.
-const C = { paper: "#F3F5F4", ink: "#1E2A33", muted: "#52616B", civic: "#2E5E4E", amber: "#C98A00" };
+const C = { paper: "#F3F5F4", ink: "#1E2A33", muted: "#52616B", civic: "#2E5E4E", amber: "#C98A00", white: "#FFFFFF" };
 const FONT = "Atkinson Hyperlegible, Inter, DejaVu Sans, sans-serif";
 const FPS = 30;
-const TRIM = 2.5; // seconds of idle page before the first text
-const DEMO_END = marks.find((m) => m.id === "end")!.t;
+const WPS = 2.4; // narration pace: 144 words per minute
+const words = (t: string) => t.split(/\s+/).length;
+const vo = (id: string) => script.find((x) => x.id === id)!.vo;
+const secs = (id: string) => words(vo(id).join(" ")) / WPS + 1.2;
+const at = (id: string) => marks.find((m) => m.id === id)!.t;
+const f = (sec: number) => Math.round(sec * FPS);
 
 const fadeIn = (frame: number, delay = 0) =>
-  interpolate(frame, [delay, delay + 15], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: Easing.bezier(0.16, 1, 0.3, 1) });
+  interpolate(frame, [delay, delay + 12], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: Easing.bezier(0.16, 1, 0.3, 1) });
 
-const Card: React.FC<{ lines: { text: string; size?: number; color?: string; weight?: number }[]; source?: string }> = ({ lines, source }) => {
+// The narration sentence being spoken at `sec` seconds into a script section (time split by word count).
+const sentenceAt = (lines: string[], sec: number) => {
+  let t = 0.6;
+  for (const l of lines) { t += words(l) / WPS; if (sec < t) return l; }
+  return lines[lines.length - 1];
+};
+
+const CaptionBar: React.FC<{ id: string }> = ({ id }) => {
   const frame = useCurrentFrame();
   return (
-    <AbsoluteFill style={{ background: C.paper, color: C.ink, fontFamily: FONT, padding: "120px 160px", justifyContent: "center" }}>
-      {lines.map((l, i) => (
-        <div key={i} style={{ fontSize: l.size ?? 56, fontWeight: l.weight ?? 400, color: l.color ?? C.ink, lineHeight: 1.2, marginBottom: 36, maxWidth: 1500, opacity: fadeIn(frame, i * 20) }}>
-          {l.text}
+    <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, padding: "28px 160px 44px", background: C.ink, color: C.white, fontSize: 40, lineHeight: 1.3, minHeight: 170 }}>
+      {sentenceAt(vo(id), frame / FPS)}
+    </div>
+  );
+};
+
+const Scene: React.FC<{ id: string; children: React.ReactNode }> = ({ id, children }) => (
+  <AbsoluteFill style={{ background: C.paper, color: C.ink, fontFamily: FONT }}>
+    <AbsoluteFill style={{ padding: "100px 160px 230px", justifyContent: "center" }}>{children}</AbsoluteFill>
+    <CaptionBar id={id} />
+  </AbsoluteFill>
+);
+
+const Line: React.FC<{ i?: number; size?: number; color?: string; bold?: boolean; children: React.ReactNode }> = ({ i = 0, size = 56, color = C.ink, bold, children }) => {
+  const frame = useCurrentFrame();
+  return <div style={{ fontSize: size, color, fontWeight: bold ? 700 : 400, lineHeight: 1.2, marginBottom: 32, maxWidth: 1600, opacity: fadeIn(frame, i * 18) }}>{children}</div>;
+};
+
+const Problem = () => (
+  <Scene id="problem">
+    <Line size={120} bold>Text City Hall</Line>
+    <Line i={1} size={56} color={C.muted}>CIVIC Hack 2026 challenge: making municipal decisions easier to understand</Line>
+  </Scene>
+);
+
+const Today = () => {
+  const frame = useCurrentFrame();
+  const doc = (src: string, label: string, i: number) => (
+    <div style={{ opacity: fadeIn(frame, 30 + i * 25), textAlign: "center" }}>
+      <Img src={staticFile(src)} style={{ height: 560, boxShadow: "0 12px 30px rgba(30,42,51,.25)", border: `1px solid ${C.muted}` }} />
+      <div style={{ fontSize: 36, marginTop: 18 }}>{label}</div>
+    </div>
+  );
+  return (
+    <Scene id="today">
+      <div style={{ display: "flex", alignItems: "center", gap: 80 }}>
+        <div style={{ width: 560 }}>
+          <Line size={64} bold>Today</Line>
+          <Line i={1} size={40} color={C.muted}>Sam is an example resident. The documents are the real records for 245 Eglinton Avenue East.</Line>
         </div>
-      ))}
-      {source && <div style={{ position: "absolute", left: 160, bottom: 90, fontSize: 30, color: C.muted, opacity: fadeIn(frame, 30) }}>{source}</div>}
-    </AbsoluteFill>
-  );
-};
-
-const CAPTIONS: Record<string, string> = {
-  address: "Text any Toronto street address. It finds the ward in the city's own address data and lists the latest council decisions there.",
-  detail: "Reply 1 for details: what happened at each meeting, how council voted, and the official link.",
-  building: "Don't know the address? A building name works too.",
-  ambiguous: "Two City Halls, in two different wards. It asks instead of guessing.",
-  ward: "Or just text your ward number.",
-  watch: "Text WATCH to get a text whenever council votes on something in your ward.",
-  replay: "Replaying May to July 2026: the three updates a Ward 2 resident would have received.",
-};
-
-const Demo: React.FC = () => {
-  const frame = useCurrentFrame();
-  const t = frame / FPS + TRIM;
-  const current = [...marks].reverse().find((m) => CAPTIONS[m.id] && m.t <= t + 0.3) ?? marks[1];
-  const since = Math.round((t - current.t) * FPS);
-  return (
-    <AbsoluteFill style={{ background: C.paper, fontFamily: FONT, flexDirection: "row", alignItems: "center", padding: "0 120px", gap: 100 }}>
-      <div style={{ width: 540, height: 960, borderRadius: 48, overflow: "hidden", border: `14px solid ${C.ink}`, flexShrink: 0 }}>
-        <Video src={staticFile("demo.webm")} trimBefore={Math.round(TRIM * FPS)} style={{ width: "100%", height: "100%" }} muted />
+        {doc("staff-report-01.png", "Staff report, 30 pages", 0)}
+        {doc("agenda-page-1.png", "Agenda item page", 1)}
       </div>
-      <div style={{ fontSize: 60, lineHeight: 1.25, color: C.ink, maxWidth: 1000, opacity: fadeIn(since) }}>{CAPTIONS[current.id]}</div>
+    </Scene>
+  );
+};
+
+const DEMO = ["demo-replay", "demo-address", "demo-detail", "demo-alerts", "demo-final"];
+const Demo = () => {
+  const frame = useCurrentFrame();
+  const t = frame / FPS + at("demo-replay");
+  const id = [...DEMO].reverse().find((d) => at(d) <= t) ?? DEMO[0];
+  const line = sentenceAt(vo(id), t - at(id));
+  return (
+    <AbsoluteFill style={{ background: C.paper, fontFamily: FONT, flexDirection: "row", alignItems: "center", padding: "0 140px", gap: 110 }}>
+      <div style={{ width: 540, height: 960, borderRadius: 48, overflow: "hidden", border: `14px solid ${C.ink}`, flexShrink: 0 }}>
+        <Video src={staticFile("demo.webm")} trimBefore={f(at("demo-replay"))} style={{ width: "100%", height: "100%" }} muted />
+      </div>
+      <div style={{ fontSize: 54, lineHeight: 1.3, color: C.ink, maxWidth: 980 }}>{line}</div>
     </AbsoluteFill>
   );
 };
 
-const s = (sec: number) => Math.round(sec * FPS);
+const Col: React.FC<{ title: string; items: string[]; color: string; i: number }> = ({ title, items, color, i }) => {
+  const frame = useCurrentFrame();
+  return (
+    <div style={{ flex: 1, borderTop: `8px solid ${color}`, paddingTop: 24, opacity: fadeIn(frame, i * 25) }}>
+      <div style={{ fontSize: 48, fontWeight: 700, marginBottom: 20 }}>{title}</div>
+      {items.map((x) => <div key={x} style={{ fontSize: 36, lineHeight: 1.3, marginBottom: 14 }}>{x}</div>)}
+    </div>
+  );
+};
 
-export const Video_: React.FC = () => (
+const Real = () => (
+  <Scene id="real">
+    <div style={{ display: "flex", gap: 70 }}>
+      <Col i={0} color={C.ink} title="Data" items={["City of Toronto open data: council voting record (to 5 Aug 2026), address points", "City agenda item pages and staff reports", "No AI writes the replies"]} />
+      <Col i={1} color={C.civic} title="Working today" items={["The full text conversation, in the browser", "Real records, every reply linked to its source", "Ward lookup: 0 wrong on 2,000 real addresses"]} />
+      <Col i={2} color={C.amber} title="Not built yet" items={["A real phone number", "Live alerts (shown here as a labelled replay)", "Reading open comment periods from city pages"]} />
+    </div>
+  </Scene>
+);
+
+const Next = () => (
+  <Scene id="next">
+    <Line size={72} bold>To pilot it, a city needs</Line>
+    <Line i={1}>1. A text-message number connected to this code</Line>
+    <Line i={2}>2. A nightly refresh of its open data</Line>
+    <Line i={3}>3. Staff to review the reply wording</Line>
+    <Line i={4} size={44} color={C.muted}>Any city with open council data can adapt it.</Line>
+  </Scene>
+);
+
+const End = () => (
+  <Scene id="end">
+    <Line size={110} bold>Text City Hall</Line>
+    <Line i={1} size={64} color={C.civic} bold>ripasso.github.io/civichacks</Line>
+  </Scene>
+);
+
+const DEMO_SECS = at("end") - at("demo-replay");
+const SCENES: [React.FC, number][] = [
+  [Problem, secs("problem")], [Today, secs("today")], [Demo, DEMO_SECS], [Real, secs("real")], [Next, secs("next")], [End, secs("end") + 3],
+];
+
+const Main: React.FC = () => (
   <Series>
-    <Series.Sequence durationInFrames={s(6)}>
-      <Card lines={[{ text: "Text City Hall", size: 132, weight: 700 }, { text: "Toronto council decisions, by text message.", size: 64, color: C.muted }]} />
-    </Series.Sequence>
-    <Series.Sequence durationInFrames={s(12)}>
-      <Card
-        lines={[{ text: "Only 20% of Canadians have ever taken part in a municipal public consultation.", size: 76, weight: 700 }, { text: "Most residents learn about a decision once it's made, or once construction starts.", size: 56, color: C.muted }]}
-        source="Ipsos and Municipal World, cited in the CIVIC Hack 2026 challenge brief"
-      />
-    </Series.Sequence>
-    <Series.Sequence durationInFrames={s(12)}>
-      <Card lines={[{ text: "For people who never read a council agenda.", size: 84, weight: 700 }, { text: "Renters, newcomers, seniors, shift workers, people with limited data.", size: 56 }, { text: "Any phone that can text. No app, no account.", size: 56, color: C.civic, weight: 700 }]} />
-    </Series.Sequence>
-    <Series.Sequence durationInFrames={s(DEMO_END - TRIM)}>
-      <Demo />
-    </Series.Sequence>
-    <Series.Sequence durationInFrames={s(18)}>
-      <Card lines={[
-        { text: "Built only from City of Toronto records. No AI writes the replies.", size: 64, weight: 700 },
-        { text: "Tested on 2,000 real addresses: 1,989 matched the right ward, 11 near a boundary were asked for theirs, 0 were wrong.", size: 52 },
-        { text: "No comment deadline is ever guessed from a meeting date.", size: 52 },
-        { text: "Every reply ends with the link to the official record.", size: 52, color: C.civic, weight: 700 },
-      ]} />
-    </Series.Sequence>
-    <Series.Sequence durationInFrames={s(16)}>
-      <Card lines={[
-        { text: "Ready to pilot", size: 84, weight: 700 },
-        { text: "A city connects a text-message number to the same code and refreshes its open data each night.", size: 56 },
-        { text: "Any city that publishes council votes and addresses can adapt it.", size: 56, color: C.muted },
-      ]} />
-    </Series.Sequence>
-    <Series.Sequence durationInFrames={s(10)}>
-      <Card lines={[{ text: "Text City Hall", size: 110, weight: 700 }, { text: "Try it now: ripasso.github.io/civichacks", size: 64, color: C.civic, weight: 700 }, { text: "CIVIC Hack 2026", size: 44, color: C.muted }]} />
-    </Series.Sequence>
+    {SCENES.map(([S, s], i) => (
+      <Series.Sequence key={i} durationInFrames={f(s)}><S /></Series.Sequence>
+    ))}
   </Series>
 );
 
-const TOTAL = s(6 + 12 + 12 + (DEMO_END - TRIM) + 18 + 16 + 10);
-
 export const MyComposition = () => (
-  <Composition id="Demo" component={Video_} durationInFrames={TOTAL} fps={FPS} width={1920} height={1080} />
+  <Composition id="Demo" component={Main} durationInFrames={SCENES.reduce((a, [, s]) => a + f(s), 0)} fps={FPS} width={1920} height={1080} />
 );
