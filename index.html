@@ -70,7 +70,7 @@
       <div class="log" id="log" role="log" aria-live="polite"></div>
       <form class="send" id="send">
         <label for="msg" class="visually-hidden" style="position:absolute;left:-9999px">Your text message</label>
-        <input id="msg" autocomplete="off" placeholder="Text an address, e.g. 245 Eglinton Ave E" maxlength="160">
+        <input id="msg" autocomplete="off" placeholder="An address or building, e.g. CN Tower" maxlength="160">
         <button type="submit">Send</button>
       </form>
     </div>
@@ -78,7 +78,7 @@
 
   <div class="intro">
     <h1>Text an address. Get what council decided there.</h1>
-    <p class="lede">Toronto council decisions are spread across agendas and reports most people never read. Send a street address by text and get back the recent decisions in your ward, how council voted, and a link to the official record.</p>
+    <p class="lede">Toronto council decisions are spread across agendas and reports most people never read. Send a street address or building name by text and get back the recent decisions in your ward, how council voted, and a link to the official record.</p>
   </div>
 
   <div class="more">
@@ -86,6 +86,7 @@
     <ul class="try" id="try">
       <li><button type="button">245 Eglinton Ave E</button></li>
       <li><button type="button">191 College St</button></li>
+      <li><button type="button">CN Tower</button></li>
       <li><button type="button">WARD 2</button></li>
       <li><button type="button">1</button></li>
       <li><button type="button">WATCH</button></li>
@@ -115,8 +116,8 @@
 <script type="module">
 import { prepare, reply, alerts } from './lib/reply.js';
 
-const [items, streets] = await Promise.all(['data/items.json', 'data/streets.json'].map(u => fetch(u).then(r => r.json())));
-const data = prepare(items, streets);
+const [items, streets, places] = await Promise.all(['data/items.json', 'data/streets.json', 'data/places.json'].map(u => fetch(u).then(r => r.json())));
+const data = prepare(items, streets, places);
 const $ = id => document.getElementById(id);
 const fmt = d => new Date(d + 'T12:00').toLocaleDateString('en-CA', { day: 'numeric', month: 'long', year: 'numeric' });
 let state = {};
