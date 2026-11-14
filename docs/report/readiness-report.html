@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<title>Text City Hall: Municipal Readiness Report</title>
+<style>
+  @page { size: Letter; margin: 0.45in 0.5in; }
+  * { box-sizing: border-box; }
+  body { font: 8.6pt/1.32 "Atkinson Hyperlegible", Inter, "DejaVu Sans", sans-serif; color: #1E2A33; margin: 0; }
+  h1 { font-size: 17pt; margin: 0; letter-spacing: -0.01em; }
+  .sub { color: #52616B; font-size: 9pt; margin: 2px 0 6px; }
+  .meta { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px 14px; border-top: 2px solid #1E2A33; border-bottom: 1px solid #CCD5D2; padding: 5px 0; margin-bottom: 7px; }
+  .meta b { display: block; font-size: 7.4pt; color: #52616B; font-weight: 700; }
+  h2 { font-size: 9.8pt; margin: 7px 0 2px; color: #2E5E4E; }
+  h2 small { font-weight: 400; color: #52616B; font-size: 7.6pt; }
+  p { margin: 0 0 3px; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 0 18px; }
+  table { width: 100%; border-collapse: collapse; font-size: 7.9pt; margin-top: 2px; }
+  th, td { text-align: left; vertical-align: top; padding: 2px 5px 2px 0; border-bottom: 1px solid #E1E6E4; }
+  th { font-size: 7.4pt; color: #52616B; }
+  ul { margin: 1px 0 3px 14px; padding: 0; } li { margin: 0 0 1px; }
+  .foot { margin-top: 6px; padding-top: 4px; border-top: 1px solid #CCD5D2; font-size: 7.3pt; color: #52616B; }
+</style></head>
+<body>
+<h1>Text City Hall</h1>
+<div class="sub">Municipal Readiness Report · CIVIC Hack 2026 · Challenge: Making municipal decisions easier to understand</div>
+<div class="meta">
+  <div><b>Project name</b>Text City Hall</div>
+  <div><b>Team name</b>[TEAM NAME]</div>
+  <div><b>Contact (UWaterloo) email</b>[UW EMAIL]</div>
+  <div style="grid-column: 1 / -1"><b>Team (name, school, program)</b>[NAME, SCHOOL, PROGRAM] · [NAME, SCHOOL, PROGRAM]</div>
+</div>
+
+<div class="two">
+<div>
+<h2>The problem</h2>
+<p>We focused on the moment residents miss: a decision about their own street moving through committee and council without them knowing. The record is spread across agendas, 30-page staff reports and votes, in planning language, and comment windows are easy to miss, so renters, newcomers, seniors and shift workers rarely take part.</p>
+
+<h2>Your solution</h2>
+<p>Residents text a street address, building name or ward number and get back, in plain words, the recent council decisions there, how each body voted, and a link to the official record. Texting WATCH sends a text when council votes on something in their ward. No app or account: any phone. Clerks and councillors' offices can share the number.</p>
+
+<h2>What changes</h2>
+<p>Today, residents must already know a decision exists and read the records. With Text City Hall, sourced and dated news of each vote reaches them, from committee onward.</p>
+
+<h2>What could be piloted today</h2>
+<p><b>Ready now:</b> the full conversation on real Toronto records, live at ripasso.github.io/civichacks, with automated tests. <b>Pilot setup:</b> connect a text number, schedule the nightly refresh. <b>Next:</b> confirmed comment periods, French and other languages.</p>
+</div>
+<div>
+<h2>Data sources and tools</h2>
+<table>
+  <tr><th>Dataset</th><th>Source</th><th>Assumption / use</th></tr>
+  <tr><td>Council voting record 2022–2026</td><td>Toronto Open Data, 13 Nov 2026</td><td>Recorded votes only</td></tr>
+  <tr><td>Address Points</td><td>Toronto Open Data</td><td>Address or building to ward</td></tr>
+  <tr><td>Agenda pages, staff reports</td><td>toronto.ca</td><td>Decision text, verbatim</td></tr>
+  <tr><td>Python, Node.js, Poppler</td><td>Open source</td><td>Pipeline, replies, tests</td></tr>
+  <tr><td>Claude Code, ElevenLabs</td><td>AI tools</td><td>Coding help (all tested); voice-over</td></tr>
+</table>
+
+<h2>How it stays accurate</h2>
+<ul>
+  <li>Every reply is built from records, not written by AI, and ends with the official link.</li>
+  <li>Ward lookup tested on 2,000 real addresses: 1,989 correct, 11 near a boundary asked for their ward, 0 wrong.</li>
+  <li>It never infers a comment deadline from a meeting date, and labels staff, committee and council stages separately.</li>
+</ul>
+</div>
+</div>
+
+<h2>Adopting or scaling it <small>who runs it, resources, cost, privacy, what residents should know, other provinces</small></h2>
+<div class="two">
+<div>
+<p><b>Who would use it.</b> Residents text it. The clerk's or communications office runs it and councillors' offices promote it, alongside statutory notices, libraries and community groups for people offline.</p>
+<p><b>Resources and setup.</b> No server or database. (1) A nightly script refreshes open data. (2) The web page is static files on free hosting. (3) A text-message number points at the same reply code. One staff member can set this up in a day; upkeep is checking the nightly run.</p>
+<p><b>Rough cost.</b> Hosting $0. A local SMS number is about $1–2 a month; texts cost under a cent per segment (third-party pricing, to confirm), so a few cents per conversation: about $600 a month at 10,000 conversations.</p>
+</div>
+<div>
+<p><b>Privacy.</b> An address is used once to find the ward and never stored. WATCH stores only phone number and ward, is opt-in, and STOP deletes it. No personal information from public correspondence is shown.</p>
+<p><b>What residents should know.</b> Replies come from public records, can lag by a day, and include recorded votes only. The official link is the authority. It is information, not legal or planning advice.</p>
+<p><b>Other municipalities and provinces.</b> Any city that publishes council votes and address-to-ward data can adapt it by changing one data step; cities without open vote data can export it from their meeting-management system. At-large councils use one city-wide list. Notice rules differ by province, so deadlines always come from the official page, never from the tool's rules; Quebec and bilingual cities need French replies first.</p>
+</div>
+</div>
+<h2>Recommended pilot <small>pick one part and do it well</small></h2>
+<p><b>One ward, three months, development applications only.</b> Before launch, the clerk's office reviews every reply template and the item labels. Promote the number on the statutory notice signs and mailed notices for that ward, so residents meet it where a decision starts. Measure: WATCH sign-ups, texts per week, written comments and deputations on those items compared with the previous term, and every reported error (target: zero wrong wards or stages). Expand ward by ward if errors stay at zero.</p>
+<div class="foot">Code, tests and sources: github.com/ripasso/civichacks · Try it: ripasso.github.io/civichacks · Demo items are real Toronto records from 2026, replayed with dates because council is between terms after the October 2026 election. Problem context: only 20% of Canadians have ever taken part in a municipal public consultation (Ipsos and Municipal World, cited in the challenge brief).</div>
+</body></html>

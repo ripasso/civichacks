@@ -1,73 +1,82 @@
-# CIVIC Hack 2026
+# Text City Hall
 
-Team repo for [CIVIC Hack 2026](https://civic-hack-2026.devpost.com/) —
-Future Cities Institute, University of Waterloo. 36 hours, online,
-12–14 November 2026.
+**Toronto council decisions, by text message.** Text a street address, building name or ward number; get back the recent council decisions there, how council voted, and a link to the official record. Text WATCH to hear when council votes on something in your ward.
 
-**Final challenge: Making municipal decisions easier to understand** — see
-`docs/challenge.md`. It was one of five municipal problems, chosen by vote at the
-2026 State of Canada's Cities Summit and revealed at launch (Thu 12 Nov,
-6 pm ET). Build starts 7 pm ET Thursday; **all building stops Sat 14 Nov,
-10 am ET**, when the Devpost submission is due.
+Built for [CIVIC Hack 2026](https://civic-hack-2026.devpost.com/) (Future Cities Institute, University of Waterloo), challenge: *Making municipal decisions easier to understand*.
 
-## Submission checklist (all required, all due Sat 10 am ET)
+| | |
+|---|---|
+| **Try it** | https://ripasso.github.io/civichacks/ |
+| **Demo video** (2:31, narrated, captioned) | [`docs/text-city-hall-demo.mp4`](docs/text-city-hall-demo.mp4) · script: [`docs/video-script.md`](docs/video-script.md) |
+| **Municipal Readiness Report** (1 page) | [`docs/municipal-readiness-report.pdf`](docs/municipal-readiness-report.pdf) |
+| **Requirements, UML, architecture, code walkthrough** | [`docs/design.md`](docs/design.md) |
+| **Short description** | [`docs/devpost-description.md`](docs/devpost-description.md) |
+| Challenge brief and notes | [`docs/challenge.md`](docs/challenge.md), [`docs/briefs/`](docs/briefs/) |
 
-- [ ] Link to this repo — *commits will be checked*
-- [ ] Demo video, 2–3 min — over 3 min is not considered
-- [ ] Municipal Readiness Report, one page (PDF in this repo is fine)
-- [ ] Short description: problem, who it's for, solution, what's next
+## How it works
 
-Working prototype link is welcome, not required.
+```
+City of Toronto open data ─┐
+Agenda pages + reports ────┼─ pipeline/build_data.py (nightly) ─► site/data/*.json ─► reply() ─► web simulator / SMS
+                           ┘
+```
 
-## Scoring: 100 points
-
-| Part | Points | Criteria |
-|---|---|---|
-| Project | 40 | problem & stakeholders 10 · quality/functionality 15 · design, clarity, feasibility 10 · impact 5 |
-| Software design | 20 | requirements + UML 5 · architecture rationale & scalability 5 · can explain own code incl. AI-generated 5 · cite code/libraries/AI 5 |
-| Presentation | 40 | readiness report 20 · demo video 20 |
-
-Presentation is worth as much as the build, and the software-design block
-is 20 points of documentation most hackathons don't ask for.
-
-## Layout
-
-- `docs/briefs/` — the five challenge briefs and the official submission
-  template, downloaded from
-  [fciprojects.ca](https://fciprojects.ca/hackathons/2026-civic-hack/)
-- `.claude/skills/` — vendored Claude Code skills, see its README
-
-## Key times (ET)
-
-Thu 3 pm vote closes · Thu 6 pm launch & reveal · Thu 7 pm build starts ·
-Fri 8 am / 3 pm / 6 pm checkpoints · Fri 8:30–10 am live from the Summit
-(*what they say is the brief for the next 24 hours*) · Fri 10 am–4 pm
-mentors on Discord · Sat 8 am final checkpoint · **Sat 10 am hard stop** ·
-Sat 12 pm top five · Sat 12:30 pm 5-min pitch + 3-min Q&A
-
-## References
-
-Data (City of Toronto Open Data, Open Government Licence – Toronto; retrieved 13 Nov 2026 by `pipeline/build_data.py`):
-- [Members of Toronto City Council – Voting Record](https://open.toronto.ca/dataset/members-of-toronto-city-council-voting-record/) (2022–2026 term; last vote 5 Aug 2026) — item timelines and recorded vote results. Recorded votes only: not every decision has one.
-- [Address Points (Municipal) – Toronto One Address Repository](https://open.toronto.ca/dataset/address-points-municipal-toronto-one-address-repository/) — address → ward lookup.
-- City of Toronto council agenda items 2026.NY34.12, 2026.TE34.21, 2026.PH30.3 (`secure.toronto.ca/council/agenda-item.do?item=<ITEM>`), retrieved 13 Nov 2026 — saved as PDF printouts in `data/raw/` (Chrome "Save as PDF"; the site blocks automated downloads). Public council records, © City of Toronto; the pages state no licence and link to no terms of use, and they are not on the Open Data portal, so the Open Government Licence – Toronto is not confirmed to cover them.
-
-Code: Python 3 standard library only (`csv`, `json`, `urllib`).
-
-AI assistance: Claude Code helped write `pipeline/build_data.py`; outputs checked by the asserts in the script and by hand against the source CSVs.
-- City of Toronto agenda item pages for 2026.NY34.12, 2026.TE34.21, 2026.PH30.3 (`data/raw/`) and the staff reports they link (downloaded from www.toronto.ca/legdocs) — council decision text, tracking status, ward, and staff recommendations for the "what changed" view.
-
-Tools: `pdftotext` (Poppler, GPL) for PDF text extraction; Node.js built-in test runner for `tests/`.
-- [Atkinson Hyperlegible](https://fonts.google.com/specimen/Atkinson+Hyperlegible) typeface (Braille Institute, SIL Open Font Licence) via Google Fonts — chosen for low-vision readers.
+- **Only records, no AI in the replies.** Every reply is built from city data fields and ends with the official link.
+- **Never guesses.** Address near a ward boundary → asks for the ward. Building name in two wards → asks. No comment deadline unless the official page confirms it.
+- **Tested.** 10 tests run on every push, including 2,000 random real Toronto addresses: 1,989 correct, 11 asked for their ward, 0 wrong.
+- **Simple for a city to run.** No server or database: a nightly script, static files (free hosting), and a text-message number pointed at the same `reply()` code.
 
 ## Run it
 
 ```bash
-python3 pipeline/build_data.py   # rebuild site/data from open data + data/raw
-node --test tests/*.test.js      # 8 tests, incl. 2,000 real addresses
-cd site && python3 -m http.server 8000   # simulator at http://localhost:8000
+python3 pipeline/build_data.py          # rebuild site/data from open data + data/raw (needs pdftotext)
+node --test tests/*.test.js             # 10 tests
+cd site && python3 -m http.server 8000  # simulator at http://localhost:8000
 ```
 
-## Demo video
+## Repository
 
-`docs/text-city-hall-demo.mp4` (2:43, captioned; narration script with timings in `docs/video-script.md`). Made with [Remotion](https://www.remotion.dev/) 4.0.543 (Remotion License, free for individuals and small teams) from a real browser recording of the live site: `video/record-demo.cjs` records it, `video/src/Composition.tsx` adds the cards and captions. Rebuild: `cd video && npm i && node record-demo.cjs && npx remotion render Demo out/text-city-hall-demo.mp4`.
+| Path | What |
+|---|---|
+| `pipeline/build_data.py` | Data pipeline (Python standard library + `pdftotext`) |
+| `site/lib/reply.js` | The conversation: address/building/ward → decisions → details, WATCH, STOP, HELP |
+| `site/index.html` | Web phone simulator (same `reply()` as SMS) |
+| `site/data/` | Generated data: `items.json`, `streets.json`, `places.json` |
+| `tests/` | Tests and the 2,000-address sample |
+| `data/raw/` | Agenda item pages saved from toronto.ca (the site blocks automated downloads) |
+| `video/` | Demo video source (recording, narration, composition) |
+| `.github/workflows/pages.yml` | Tests, then publish `site/` on every push |
+| `.claude/skills/` | Third-party Claude Code skills used as tools, not project code ([provenance](.claude/skills/README.md)) |
+
+## References
+
+**Data** (City of Toronto, [Open Government Licence – Toronto](https://open.toronto.ca/open-data-license/), retrieved 13 Nov 2026):
+- [Members of Toronto City Council – Voting Record](https://open.toronto.ca/dataset/members-of-toronto-city-council-voting-record/), 2022–2026 term (last vote 5 Aug 2026). Item timelines and vote results. Recorded votes only: not every decision has one.
+- [Address Points (Municipal) – Toronto One Address Repository](https://open.toronto.ca/dataset/address-points-municipal-toronto-one-address-repository/). Address → ward, and `PLACE_NAME` for building names.
+- Agenda item pages 2026.NY34.12, 2026.TE34.21, 2026.PH30.3 (saved as PDF in `data/raw/`; licence not stated on the pages) and the staff reports they link on `www.toronto.ca/legdocs`. Decision text, tracking status, ward, staff recommendations.
+- Problem statistics quoted from the CIVIC Hack 2026 challenge brief (Ipsos and Municipal World; AMO).
+
+**Software**
+
+| Name | Version | Licence | Used for |
+|---|---|---|---|
+| Python | 3.13 | PSF | Pipeline (standard library only: `csv`, `json`, `urllib`, `difflib`, `subprocess`) |
+| Node.js | 22.23 | MIT | Tests (built-in `node:test`), video tooling |
+| Poppler `pdftotext` | 24.02 | GPL-2.0 | PDF text extraction (called as a program, not linked) |
+| Playwright | 1.63 | Apache-2.0 | Screenshots and demo screen recording |
+| Remotion | 4.0.543 | Remotion License (free for individuals and small teams) | Demo video |
+| Atkinson Hyperlegible | – | SIL OFL 1.1 | Typeface, via Google Fonts (Braille Institute, designed for low-vision readers) |
+| GitHub Pages / Actions | – | GitHub terms | Hosting and CI |
+
+No other libraries: `reply.js` and the web page have zero dependencies.
+
+**Algorithms.** Ward lookup: per-street house-number ranges built from the address points, odd and even sides separate, refusing when ranges disagree. Recommendation diff: Python `difflib.SequenceMatcher` (pairing at ratio ≥ 0.6, then word-level opcodes).
+
+**AI assistance.**
+- **Claude Code** (Anthropic) helped write the pipeline, `reply.js`, tests, web page, documents and video tooling. Verification: the test suite, pipeline assertions, and script checks of every fact in the video and report against the records. Details and two bugs caught this way: [`docs/design.md`](docs/design.md#how-ai-assistance-was-used-and-verified).
+- **ElevenLabs** (voice "Sarah", model `eleven_multilingual_v2`) generated the video narration from our script.
+- No AI is used at runtime: residents' replies are never generated by a model.
+
+## Timeline note
+
+The first commit (12 Nov, 5:35 pm ET, before the 6 pm launch) contains only setup material: this README's hackathon notes, the organizers' published briefs, and the vendored Claude Code skills. All project code was written after launch; see `git log`.

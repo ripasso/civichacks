@@ -50,19 +50,19 @@
   ]
  },
  {
-  "id": "real",
+  "id": "setup",
   "vo": [
-   "Everything comes from City of Toronto open data and agenda pages. No AI writes the replies.",
-   "On two thousand real addresses, the ward lookup was never wrong.",
-   "Working today: the full conversation, in the browser, with real records. Not built yet: a real phone number and live alerts.",
-   "Council is between terms after the election, so nothing is open for comment. The demo replays past dates, clearly labelled."
+   "Everything you just saw runs on City of Toronto open data and agenda pages. No AI writes the replies, and on two thousand real addresses the ward lookup was never wrong.",
+   "Setting it up is simple. There's no server and no database to run.",
+   "A nightly script refreshes the city's open data, the site is free to host, and a city connects a text-message number to the same reply code, so residents get exactly this conversation.",
+   "It costs a few cents per conversation."
   ]
  },
  {
   "id": "next",
   "vo": [
-   "To pilot it, a city needs a text number connected to this code, a nightly data refresh, and staff to review the wording.",
-   "It costs a few cents per conversation, and any city with open council data can adapt it.",
+   "Any city that publishes council votes and addresses can adapt it by changing one data step.",
+   "Council is between terms after the election, so this demo replays real records from July, clearly labelled.",
    "The goal: residents hear about decisions while they can still have a say."
   ]
  },

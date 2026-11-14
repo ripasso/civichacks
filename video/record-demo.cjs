@@ -1,9 +1,10 @@
 // Records the live simulator for the demo video. Each step lasts as long as its narration
-// in src/script.json (144 words/min), and the step times are logged for the captions.
+// (src/vo-timing.json, from tts.cjs), and the step times are logged for the composition.
 const { chromium } = require('playwright');
 const fs = require('fs');
-const script = require('./src/script.json');
-const dur = id => { const s = script.find(x => x.id === id); return (s.vo.join(' ').split(/\s+/).length / 2.4 + 1.2) * 1000; };
+const vo = require('./src/vo-timing.json');
+const dur = id => vo[id].duration * 1000 + 700;
+const said = (id, n) => vo[id].sentences[n].start * 1000; // when sentence n of a section starts
 
 (async () => {
   const b = await chromium.launch();
@@ -21,10 +22,10 @@ const dur = id => { const s = script.find(x => x.id === id); return (s.vo.join('
   await p.addStyleTag({ content: '.intro,.more{display:none!important} main{padding:0!important;display:block!important;max-width:none!important} .phone{position:static!important;border-radius:0!important;padding:0!important;box-shadow:none!important} .screen{height:960px!important;border-radius:0!important} html{zoom:2}' });
   await p.waitForTimeout(1500);
 
-  let s = mark('demo-replay'); await p.waitForTimeout(1500); await setDate('2026-07-08'); await until(s, dur('demo-replay'));
+  let s = mark('demo-replay'); await until(s, said('demo-replay', 1)); await setDate('2026-07-08'); await until(s, dur('demo-replay'));
   s = mark('demo-address'); await text('245 Eglinton Ave E'); await until(s, dur('demo-address'));
   s = mark('demo-detail'); await text('1'); await until(s, dur('demo-detail'));
-  s = mark('demo-alerts'); await text('WATCH'); await p.waitForTimeout(3500); await setDate('2026-07-30'); await until(s, dur('demo-alerts'));
+  s = mark('demo-alerts'); await text('WATCH'); await until(s, said('demo-alerts', 1) + 2500); await setDate('2026-07-30'); await until(s, dur('demo-alerts'));
   s = mark('demo-final'); await text('1'); await until(s, dur('demo-final'));
   mark('end');
 
